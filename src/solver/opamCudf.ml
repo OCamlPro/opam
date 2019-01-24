@@ -1262,12 +1262,13 @@ let atomic_actions ~simple_universe ~complete_universe root_actions =
         else rm, inst)
       package_graph (to_remove, to_install)
   in
+  let to_change = Set.union to_remove to_install in
   let pkggraph set = create_graph (fun p -> Set.mem p set) complete_universe in
 
   (* Build the graph of atomic actions: Removals or installs *)
   let g = ActionGraph.create () in
   Set.iter (fun p -> ActionGraph.add_vertex g (`Remove p)) to_remove;
-  Set.iter (fun p -> ActionGraph.add_vertex g (`Install (p))) to_install;
+  Set.iter (fun p -> ActionGraph.add_vertex g (`Install p)) to_install;
   (* reinstalls and upgrades: remove first *)
   Set.iter
     (fun p1 ->
@@ -1275,32 +1276,33 @@ let atomic_actions ~simple_universe ~complete_universe root_actions =
          let p2 =
            Set.find (fun p2 -> p1.Cudf.package = p2.Cudf.package) to_install
          in
-         ActionGraph.add_edge g (`Remove p1) (`Install (p2))
+         ActionGraph.add_edge g (`Remove p1) (`Install p2)
        with Not_found -> ())
     to_remove;
-  (* uninstall order *)
-  Graph.iter_edges (fun p1 p2 ->
-      ActionGraph.add_edge g (`Remove p1) (`Remove p2)
-    ) (pkggraph to_remove);
-  (* install order *)
+  (* install / uninstall order *)
   Graph.iter_edges (fun p1 p2 ->
       if Set.mem p1 to_install then
-        let cause =
-          if Set.mem p2 to_install then `Install ( p2) else `Remove p2
-        in
-        ActionGraph.add_edge g cause (`Install ( p1))
-    ) (pkggraph (Set.union to_install to_remove));
+        (if Set.mem p2 to_install then
+           ActionGraph.add_edge g (`Install p2) (`Install p1);
+         if Set.mem p2 to_remove then
+           ActionGraph.add_edge g (`Remove p2) (`Install p1));
+      if Set.mem p1 to_remove then
+        (if Set.mem p2 to_install then
+           ActionGraph.add_edge g (`Remove p1) (`Install p2);
+         if Set.mem p2 to_remove then
+           ActionGraph.add_edge g (`Remove p1) (`Remove p2));
+    ) (pkggraph to_change);
   (* conflicts *)
   let conflicts_graph =
-    let filter p = Set.mem p to_remove || Set.mem p to_install in
+    let filter p = Set.mem p to_change in
     Algo.Defaultgraphs.PackageGraph.conflict_graph
       (Cudf.load_universe (Cudf.get_packages ~filter complete_universe))
   in
   Algo.Defaultgraphs.PackageGraph.UG.iter_edges (fun p1 p2 ->
       if Set.mem p1 to_remove && Set.mem p2 to_install then
-        ActionGraph.add_edge g (`Remove p1) (`Install ( p2))
+        ActionGraph.add_edge g (`Remove p1) (`Install p2)
       else if Set.mem p2 to_remove && Set.mem p1 to_install then
-        ActionGraph.add_edge g (`Remove p2) (`Install ( p1)))
+        ActionGraph.add_edge g (`Remove p2) (`Install p1))
     conflicts_graph;
   (* check for cycles *)
   match find_cycles g with
