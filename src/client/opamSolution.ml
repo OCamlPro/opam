@@ -809,6 +809,22 @@ let apply ?ask t ~requested ?add_roots ?(assume_built=false) solution =
     let stats = OpamSolver.stats solution in
     let show_solution = ask <> Some false in
     let action_graph = OpamSolver.get_atomic_action_graph solution in
+    (* Add build actions *)
+    (* let action_graph =
+     *   let noop_remove nv =
+     *     OpamAction.noop_remove_package t nv in
+     *   PackageActionGraph.explicit
+     *     ~noop_remove
+     *     ~sources_needed:(fun p -> OpamPackage.Set.mem p sources_needed)
+     *     action_graph
+     * in
+     * (match OpamSolverConfig.(!r.cudf_file) with
+     *  | None -> ()
+     *  | Some f ->
+     *    let filename = Printf.sprintf "%s-actions-explicit.dot" f in
+     *    let oc = open_out filename in
+     *    OpamSolver.ActionGraph.Dot.output_graph oc action_graph;
+     *    close_out oc); *)
     let new_state = simulate_new_state t action_graph in
     OpamPackage.Set.iter
       (fun p ->

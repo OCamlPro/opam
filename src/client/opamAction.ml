@@ -685,7 +685,7 @@ let sources_needed st g =
         if removal_needs_download st nv
         then OpamPackage.Set.add nv acc else acc
       | `Install nv -> OpamPackage.Set.add nv acc
-      | _ -> assert false)
+      | _ -> acc (*assert false*))
     g OpamPackage.Set.empty
 
 let remove_package t ?silent ?changes ?force ?build_dir nv =
