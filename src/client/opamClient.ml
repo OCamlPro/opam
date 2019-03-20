@@ -248,7 +248,10 @@ let compute_upgrade_t
        ~upgrade:upgrade_atoms
        ())
 
-let upgrade_t ?strict_upgrade ?auto_install ?ask ?(check=false) ~all atoms t =
+let upgrade_t
+    ?strict_upgrade ?auto_install ?ask ?(check=false) ?(quiet=false) ~all
+    atoms t
+  =
   log "UPGRADE %a"
     (slog @@ function [] -> "<all>" | a -> OpamFormula.string_of_atoms a)
     atoms;
@@ -306,6 +309,8 @@ let upgrade_t ?strict_upgrade ?auto_install ?ask ?(check=false) ~all atoms t =
       let notuptodate = latest -- to_check in
       if OpamPackage.Set.is_empty notuptodate then
         OpamConsole.msg "Already up-to-date.\n"
+      else if quiet then
+        OpamConsole.msg "No package build needed.\n"
       else
         (let hdmsg = "Everything as up-to-date as possible" in
          let unav = notuptodate -- Lazy.force t.available_packages in
@@ -1268,7 +1273,9 @@ module PIN = struct
 
   let post_pin_action st names =
     try
-      upgrade_t ~strict_upgrade:false ~auto_install:true ~ask:true ~all:false
+      upgrade_t
+        ~strict_upgrade:false ~auto_install:true ~ask:true ~quiet:true
+        ~all:false
        (List.map (fun name -> name, None) names) st
     with e ->
       OpamConsole.note
@@ -1376,7 +1383,9 @@ module PIN = struct
             else (nv.name, None) :: acc)
           installed_unpinned []
       in
-      upgrade_t ~strict_upgrade:false ~auto_install:true ~ask:true ~all:false
+      upgrade_t
+        ~strict_upgrade:false ~auto_install:true ~ask:true ~all:false
+        ~quiet:true
         atoms st
     else st
 
