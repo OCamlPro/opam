@@ -137,7 +137,7 @@ installlib-%: opam-installer opam-%.install
 uninstalllib-%: opam-installer opam-%.install
 	$(OPAMINSTALLER) -u $(OPAMINSTALLER_FLAGS) opam-$*.install
 
-libinstall: $(DUNE_DEP) opam-admin.top $(OPAMLIBS:%=installlib-%)
+libinstall: $(DUNE_DEP) $(OPAMLIBS:%=installlib-%)
 	@
 
 install: opam-actual.install
