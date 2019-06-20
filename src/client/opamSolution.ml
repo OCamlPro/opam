@@ -865,7 +865,7 @@ let apply ?ask t ~requested ?add_roots ?(assume_built=false) solution =
         else ""
       in
       OpamSolver.print_solution ~messages ~append
-        ~requested ~reinstall:t.reinstall
+        ~requested ~reinstall:(Lazy.force t.reinstall)
         solution;
       let total_actions = sum stats in
       if total_actions >= 2 then
