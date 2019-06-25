@@ -1047,7 +1047,7 @@ let from_2_0_beta5_to_2_0 _ conf = conf
 
 let v2_1 = OpamVersion.of_string "2.1"
 
-let from_2_0_to_2_1 _ conf = conf
+let from_2_0_to_2_1 _root conf = conf
 
 let latest_version = OpamFile.Config.format_version
 
