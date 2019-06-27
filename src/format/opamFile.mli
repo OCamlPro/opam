@@ -887,6 +887,7 @@ module Switch_config: sig
   val path: t -> std_path -> string option
   val wrappers: t -> Wrappers.t
   include IO_FILE with type t := t
+  val oldest_compatible_format_version: OpamVersion.t
 end
 
 (** Pinned package files (only used for migration from 1.2, the inclusive State
