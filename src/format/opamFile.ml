@@ -1500,6 +1500,7 @@ module Switch_configSyntax = struct
     wrappers: Wrappers.t;
     env: env_update list;
     invariant: OpamFormula.t;
+    depext_bypass: OpamSysPkg.Set.t;
   }
 
   let empty = {
@@ -1512,6 +1513,7 @@ module Switch_configSyntax = struct
     wrappers = Wrappers.empty;
     env = [];
     invariant = OpamFormula.Empty;
+    depext_bypass = OpamSysPkg.Set.empty;
   }
 
   (* When adding a field or section, make sure to add it in
@@ -1553,7 +1555,11 @@ module Switch_configSyntax = struct
     "invariant", Pp.ppacc
       (fun invariant t -> {t with invariant}) (fun t -> t.invariant)
       (Pp.V.package_formula `Conj Pp.V.(constraints version));
-
+    "depext-bypass", Pp.ppacc
+      (fun depext_bypass t -> { t with depext_bypass}) (fun t -> t.depext_bypass)
+      (Pp.V.map_list
+         (Pp.V.string -| Pp.of_module "sys-package" (module OpamSysPkg))
+       -| Pp.pp (fun ~pos:_ -> OpamSysPkg.Set.of_list) OpamSysPkg.Set.elements);
   ] @
     List.map
       (fun (fld, ppacc) ->
