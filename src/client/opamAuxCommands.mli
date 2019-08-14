@@ -83,12 +83,3 @@ val simulate_autopin:
   ?for_view:bool ->
   [ `Atom of atom | `Filename of filename | `Dirname of dirname ] list ->
   'a switch_state * atom list
-
-(** Scans for package definition files in a directory, and selects a compiler
-    that is compatible with them from the configured default compiler list, or
-    that is unambiguously selected by the package definitions.
-    Returns the corresponding atoms. If no compiler matches, prints a
-    warning, and returns the empty list after user confirmation. *)
-val get_compatible_compiler:
-  ?repos:repository_name list ->
-  'a repos_state -> dirname -> atom option * bool
