@@ -104,3 +104,8 @@ val map_all_variables:
 
 val map_all_filters:
   (filter -> filter) -> OpamFile.OPAM.t -> OpamFile.OPAM.t
+
+
+(** Converts a dependency formula to the same format as used in opam package
+    definition files. *)
+val dep_formula_to_string: formula -> string
