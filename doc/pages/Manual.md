@@ -1465,6 +1465,8 @@ contains configuration options specific to that switch:
   [`post-remove-commands:`](#configfield-post-remove-commands),
   [`post-session-commands:`](#configfield-post-session-commands):
   as the corresponding [global config](#config) fields.
+- [`depext-bypass:`](#configfield-depext-bypass):
+  as the corresponding [global config](#config) fields.
 - <a id="switchconfigsection-paths">`paths "{" { <ident>: <string> ... } "}"`</a>:
   defines the standard paths within the switch: recognised fields include
   `prefix:`, `bin:`, `sbin:`, `lib:`, `share:`, `etc:`, `doc:`, `man:`,
