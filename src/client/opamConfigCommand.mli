@@ -67,6 +67,17 @@ val set_var_global:
 val set_var_switch:
   rw switch_state -> string -> string option -> rw switch_state
 
+(** List modifiable fields/sections names and their modification policy status *)
+val options_list: [ `Switch | `Global ] -> unit
+
+(** [option_show_global t field] display [field] name and content in the global
+    configuration *)
+val option_show_switch: ro switch_state -> string -> unit
+
+(** Same as [option_show_global], but for fields and sections in the current
+    switch *)
+val option_show_global: ro global_state -> string -> unit
+
 (** Execute a command in a subshell, after variable expansion *)
 val exec:
   [< unlocked ] global_state ->
