@@ -427,6 +427,11 @@ let parse_upd fv =
   in
   var, value
 
+let string_of_policy = function
+  | Atomic -> "overwritable"
+  | Modifiable (_,_) -> "appendable"
+  | InModifiable ( _,_) -> "modifiable via set-var command"
+
 (* General setting option function. Takes [field_value], a string of the field
    and its value update, [conf] the configuration according the config file
    (['config confest]). If [inner] is set, it allows the modification of
@@ -778,3 +783,60 @@ let set_var_switch st var value =
           st.switch_config;
         st);
   }
+
+(** Option display *)
+
+let option_show conf field =
+  let field_str pp t =
+    match OpamPp.print pp t with
+    | _, None -> OpamConsole.error_and_exit `Internal_error "Parse error"
+    | _, Some v -> OpamPrinter.value v
+  in
+  let section_str pp t =
+    match OpamPp.print pp t with
+    | _, None -> OpamConsole.error_and_exit `Internal_error "Parse error"
+    | _, Some items ->
+      OpamPrinter.items
+        (List.map (fun (section_name, section_items) ->
+             Section (pos_null,
+                      { section_kind = field;
+                        section_name;
+                        section_items }))
+            items)
+  in
+  match OpamStd.List.find_opt (fun (f,_) -> f = field) conf.stg_fields with
+  | Some (_, pp) ->
+    OpamConsole.msg "Field %s: %s\n" field
+      (field_str pp conf.stg_config)
+  | None ->
+    (match OpamStd.List.find_opt (fun (f,_) -> f = field) conf.stg_sections with
+     | Some (_, pp) ->
+       OpamConsole.msg "Section %s\n"
+         (section_str pp conf.stg_config)
+     | None ->
+       OpamConsole.error_and_exit `Bad_arguments
+         "Field or section %s not found" field)
+
+let option_show_switch st field =
+  option_show (confset_switch st) field
+
+let option_show_global gt field =
+  option_show (confset_global gt) field
+
+let options_list scope =
+  let list_select l =
+    List.map (fun (f,p,_) -> [f; string_of_policy p]) l
+  in
+  let fields_sections =
+    match scope with
+    | `Global ->
+      (list_select (global_allowed_fields ()))
+      @ (list_select (global_allowed_sections ()))
+    | `Switch ->
+      (list_select (switch_allowed_fields ()))
+      @ (list_select (switch_allowed_sections ()))
+  in
+  OpamConsole.msg "Configurable %s fields and sections are:\n"
+    (match scope with `Switch -> "switch" | `Global -> "global");
+  OpamConsole.print_table stdout ~sep:"   "
+    (OpamStd.Format.align_table (fields_sections))
