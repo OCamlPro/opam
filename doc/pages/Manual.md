@@ -1424,9 +1424,35 @@ for <span class="opam">opam</span>.
     defined in all cases.
 
 - <a id="configfield-default-compiler">`default-compiler: [ <package-formula> ... ]`</a>:
-  a list of compiler package choices. On `opam init`, the first available
-  compiler in the list will be chosen for creating the initial switch if
-  `--bare` wasn't specified.
+  The default formula to set the invariant of new switches.
+
+- <a id="configfield-depext">`depext: <bool>`</a>: (default `true`)
+  Enable handling of external dependencies. When this is enabled, opam will
+  interact with your system package manager when packages declare external
+  dependencies, and prompt you to install them when needed.
+
+- <a id="configfield-depext-run-installs">`depext-run-installs: <bool>`</a>: (default `true`)
+  Allow opam to run package installations through your system package manager
+  when required by "depexts" of opam packages. The user will be prompted before
+  any calls to `sudo`, unless `--yes` was specified; if `false`, the
+  installation command will be printed, and opam will pause to let the user
+  proceed.
+
+- <a id="configfield-depext-cannot-install">`depext-cannot-install: <bool>`</a>: (default `false`)
+  Instructs opam that no system package can be installed on the system. Any opam
+  package declaring system dependencies towards a system package that is not yet
+  installed will be marked as unavailable. Use this if you don't have root
+  access.
+
+- <a id="configfield-depext-verify">`depext-verify: <bool>`</a>: (default `true`)
+  If an installed opam package depends on a system package that was removed and
+  this is enabled, opam will mark the opam package as needing reinstallation.
+
+- <a id="configfield-depext-bypass">`depext-bypass: [ <string> ... ]`</a>:
+  A list of system package names that are assumed to be installed, and will be
+  ignored from the `depexts` specified in opam packages.
+
+- <a id="switchconfigsection-paths">`paths "{" { <ident>: <string> ... } "}"`</a>:
 
 #### switch-config
 

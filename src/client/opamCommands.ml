@@ -873,9 +873,6 @@ let config ?(option=false) () =
     "Outputs the current available package universe in CUDF format.";
     "pef-universe", `pef, ["[FILE]"],
     "Outputs the current package universe in PEF format.";
-    "depexts", `depexts, ["[options]"],
-    "If no options given, returns the depexts global options, otherwise sets \
-     given option into global config.";
     "set", `set, ["VAR";"VALUE"],
     "Deprecated, see $(b,set-var).";
     "unset", `unset, ["VAR"],
@@ -1126,23 +1123,6 @@ let config ?(option=false) () =
               "PATH contains '.' : this is a likely cause of trouble.";
           `Ok ()
         with e -> print "read-state" "%s" (Printexc.to_string e); `Ok ())
-    | Some `depexts, [] ->
-      let print label fmt = OpamConsole.msg ("%-25s : "^^fmt^^"\n") label in
-      print "Enabled" "%B" OpamStateConfig.(!r.depext_enable);
-      print "Print-only" "%B" OpamStateConfig.(!r.depext_print_only);
-      print "No consistency checks" "%B"
-        OpamStateConfig.(!r.depext_no_consistency_checks);
-      print "No root" "%B" OpamStateConfig.(!r.depext_no_root);
-      print "Bypass" "%s"
-        (let bypass =
-           OpamSysPkg.Set.elements OpamStateConfig.(!r.depext_bypass)
-         in
-         if bypass  = [] then
-           OpamConsole.(utf8_symbol Symbols.circled_division_slash "-")
-         else
-           (OpamStd.List.concat_map ~left:" " ~right:" " " "
-              OpamSysPkg.to_string bypass));
-      `Ok ()
     (* deprecated *)
     | Some `set, [var; value] ->
       OpamConsole.warning
