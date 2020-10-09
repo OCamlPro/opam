@@ -728,7 +728,14 @@ let extract_explanations packages cudfnv2opam unav_reasons reasons =
           if Set.exists is_opam_invariant pkgs then
             Printf.sprintf "(invariant)"
             :: aux vpkgl1 r
-          else if r = [] then ["(request)"]
+          else if r = [] then [
+            Printf.sprintf "(request = %s)" @@
+            let req = Set.find (fun p -> p.Cudf.package = dose_dummy_request) pkgs in
+            let fdeps =
+              List.map (formula_of_vpkgl cudfnv2opam packages) req.Cudf.depends
+            in
+            OpamFormula.to_string (OpamFormula.ands fdeps)
+          ]
           else aux vpkgl1 r (* request *)
         else if vpkgl = [] then
           print_set pkgs :: aux vpkgl1 r
