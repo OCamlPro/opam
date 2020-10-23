@@ -716,6 +716,7 @@ let extract_explanations packages cudfnv2opam unav_reasons reasons =
             Printf.sprintf "(invariant)"
             :: aux vpkgl1 r
           else if r = [] then [
+            (* Printf.sprintf "(request)" *)
             Printf.sprintf "(request = %s)" @@
             let req = Set.find (fun p -> p.Cudf.package = dose_dummy_request) pkgs in
             let fdeps =
@@ -736,7 +737,7 @@ let extract_explanations packages cudfnv2opam unav_reasons reasons =
           formula_of_vpkgl cudfnv2opam packages vpkgl
         in
         let s = OpamFormula.to_string f in
-        let s = s ^ Printf.sprintf " (%s)" (print_set pkgs) in
+        (* let s = s ^ Printf.sprintf " (%s)" (print_set pkgs) in *)
         match r, last with
         | _::_, _ -> s :: aux vpkgl1 r
         | [], None ->
